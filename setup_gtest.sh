@@ -18,7 +18,7 @@ echo "📝 Writing tests/test.cpp"
 cat > tests/test.cpp << 'EOF'
 #include <gtest/gtest.h>
 
-int add(int a, int b); // from main_app
+int add(int a, int b);
 
 TEST(AdditionTest, Basic) {
     EXPECT_EQ(add(2, 3), 5);
@@ -55,7 +55,7 @@ else
 fi
 
 #########################################
-# 4. Correct CMakeLists (2 separate executables)
+# 4. Full CMakeLists.txt (Two executables)
 #########################################
 
 echo "🛠 Writing CMakeLists.txt"
@@ -66,12 +66,10 @@ project(ReplitGTestProject)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# Main program
 add_executable(main_app
     src/main.cpp
 )
 
-# GoogleTest runner
 add_executable(test_runner
     tests/test.cpp
 )
@@ -88,6 +86,8 @@ EOF
 # 5. Write replit.nix
 #########################################
 
+echo "🛠 Writing replit.nix"
+
 cat > replit.nix << 'EOF'
 { pkgs }: {
   deps = [
@@ -103,6 +103,8 @@ EOF
 # 6. Write .clangd
 #########################################
 
+echo "🧠 Writing .clangd"
+
 cat > .clangd << 'EOF'
 CompileFlags:
   Add:
@@ -111,14 +113,13 @@ CompileFlags:
 EOF
 
 #########################################
-# 7. Write .replit (FULL FIXED)
+# 7. Write .replit (HEREDOC FIXED)
 #########################################
 
 echo "⚙ Writing .replit"
 
 cat > .replit << 'EOF'
 run = """
-# Auto-heal build
 if [ ! -f build/Makefile ]; then
   rm -rf build
   mkdir build
@@ -137,4 +138,46 @@ make main_app
 run_main = """
 if [ ! -f build/Makefile ]; then
   rm -rf build
+  mkdir build
+  cd build
+  cmake ..
+else
+  cd build
+fi
+
+make main_app
+./main_app
+"""
+
+run_tests = """
+if [ ! -f build/Makefile ]; then
+  rm -rf build
+  mkdir build
+  cd build
+  cmake ..
+else
+  cd build
+fi
+
+make test_runner
+./test_runner
+"""
+EOF
+
+#########################################
+# 8. Initial CMake Run
+#########################################
+
+echo "🔨 Running initial build…"
+
+rm -rf build
+mkdir build
+cd build
+cmake ..
+make
+
+echo "🎉 GoogleTest Installation Complete!"
+echo "➡ Run button runs main_app"
+echo "➡ run_tests runs GoogleTests"
+echo "➡ run_main runs main_app manually"
 

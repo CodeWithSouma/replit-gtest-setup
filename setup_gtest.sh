@@ -1,30 +1,29 @@
 #!/bin/bash
 
-echo "🚀 Starting GoogleTest Setup with AUTO-CLEAN..."
+echo "🚀 Starting GoogleTest Setup with Terminal Output + Smart Run Button"
 
-##############################################################
-# 0. AUTO-CLEAN (remove old files)
-##############################################################
+############################################
+# 0. CLEAN OLD FILES
+############################################
 
-echo "🧹 Cleaning old conflicting files..."
+echo "🧹 Cleaning old files..."
 
-rm -f main main.cpp Makefile
+rm -f main main.cpp Makefile run_active.sh
 rm -rf build CMakeFiles CMakeCache.txt cmake_install.cmake
-find . -name "main_app*" -delete
-find . -name "test_runner*" -delete
+rm -rf src tests
 
-echo "✨ Auto-clean complete."
+echo "✨ Base cleaned."
 
-##############################################################
-# 1. Create folders
-##############################################################
+############################################
+# 1. CREATE FOLDERS
+############################################
 
 mkdir -p src
 mkdir -p tests
 
-##############################################################
+############################################
 # 2. src/add.h
-##############################################################
+############################################
 
 echo "📝 Writing src/add.h"
 cat > src/add.h << 'EOF'
@@ -32,9 +31,9 @@ cat > src/add.h << 'EOF'
 int add(int a, int b);
 EOF
 
-##############################################################
+############################################
 # 3. src/add.cpp
-##############################################################
+############################################
 
 echo "📝 Writing src/add.cpp"
 cat > src/add.cpp << 'EOF'
@@ -45,9 +44,9 @@ int add(int a, int b) {
 }
 EOF
 
-##############################################################
+############################################
 # 4. src/main.cpp
-##############################################################
+############################################
 
 echo "📝 Writing src/main.cpp"
 cat > src/main.cpp << 'EOF'
@@ -60,9 +59,9 @@ int main() {
 }
 EOF
 
-##############################################################
+############################################
 # 5. tests/test.cpp
-##############################################################
+############################################
 
 echo "📝 Writing tests/test.cpp"
 cat > tests/test.cpp << 'EOF'
@@ -81,9 +80,9 @@ int main(int argc, char **argv) {
 }
 EOF
 
-##############################################################
+############################################
 # 6. CMakeLists.txt
-##############################################################
+############################################
 
 echo "🛠 Writing CMakeLists.txt"
 cat > CMakeLists.txt << 'EOF'
@@ -110,9 +109,9 @@ target_link_libraries(test_runner
 )
 EOF
 
-##############################################################
+############################################
 # 7. replit.nix
-##############################################################
+############################################
 
 echo "🛠 Writing replit.nix"
 cat > replit.nix << 'EOF'
@@ -126,9 +125,9 @@ cat > replit.nix << 'EOF'
 }
 EOF
 
-##############################################################
+############################################
 # 8. .clangd
-##############################################################
+############################################
 
 echo "🧠 Writing .clangd"
 cat > .clangd << 'EOF'
@@ -138,19 +137,28 @@ CompileFlags:
     - -I/nix/store
 EOF
 
-##############################################################
-# 9. SMART .replit (FIXED REPL_ACTIVE_FILE)
-##############################################################
+############################################
+# 9. SMART .replit
+############################################
 
-echo "⚙ Writing smart .replit"
+echo "⚙ Writing .replit (Terminal Output Mode)"
 cat > .replit << 'EOF'
-run = """
-set -e
+run = "bash -ic './run_active.sh'"
+EOF
 
-ACTIVE="$REPL_ACTIVE_FILE"
+############################################
+# 10. Create run_active.sh
+############################################
+
+echo "⚙ Creating run_active.sh"
+cat > run_active.sh << 'EOF'
+#!/bin/bash
+
+ACTIVE=$(cat /mnt/data/.active_file 2>/dev/null || echo "")
+
 echo "🟦 Active file: $ACTIVE"
 
-# Run tests if test.cpp is active
+# Test file active
 if [[ "$ACTIVE" == *"tests/test.cpp"* ]]; then
   echo "🧪 Running GoogleTests..."
   if [ ! -f build/Makefile ]; then
@@ -159,12 +167,11 @@ if [[ "$ACTIVE" == *"tests/test.cpp"* ]]; then
     cd build
   fi
   make test_runner
-  echo "🟩 Running test_runner..."
   ./test_runner
   exit 0
 fi
 
-# Run main_app if main file active
+# Main file active
 if [[ "$ACTIVE" == *"src/main.cpp"* ]]; then
   echo "▶ Running main_app..."
   if [ ! -f build/Makefile ]; then
@@ -177,7 +184,7 @@ if [[ "$ACTIVE" == *"src/main.cpp"* ]]; then
   exit 0
 fi
 
-# Fallback → run main_app
+# Default behavior
 echo "ℹ Defaulting to main_app..."
 if [ ! -f build/Makefile ]; then
   rm -rf build && mkdir build && cd build && cmake ..
@@ -186,12 +193,13 @@ else
 fi
 make main_app
 ./main_app
-"""
 EOF
 
-##############################################################
-# 10. Build
-##############################################################
+chmod +x run_active.sh
+
+############################################
+# 11. INITIAL BUILD
+############################################
 
 echo "🔨 Running initial build..."
 
@@ -202,7 +210,7 @@ cmake ..
 make
 
 echo "🎉 GoogleTest installation complete!"
-echo "➡ Smart Run Button ENABLED"
-echo "➡ Open test.cpp → Run → GoogleTests"
-echo "➡ Open main.cpp → Run → main_app"
+echo "➡ Open test.cpp → Run → GoogleTests in TERMINAL"
+echo "➡ Open main.cpp → Run → main_app in TERMINAL"
+echo "➡ Full output now displays in Terminal"
 

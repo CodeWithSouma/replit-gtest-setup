@@ -1,19 +1,11 @@
 #!/bin/bash
 
-echo "🧹 Starting FULL cleanup — restoring original Replit C++ environment..."
+echo "🧹 Cleaning + Restoring original Replit environment..."
 
 rm -rf build src tests
-rm -f CMakeLists.txt .clangd cmake_install.cmake test_runner main_app libadd_lib.a CMakeCache.txt
-rm -rf CMakeFiles
-
-# Restore default replit.nix
-cat > replit.nix << 'EOF'
-{ pkgs }: {
-  deps = [
-    pkgs.gcc
-  ];
-}
-EOF
+rm -f CMakeLists.txt .clangd run_active.sh
+rm -f main_app test_runner libadd_lib.a
+rm -rf CMakeFiles CMakeCache.txt cmake_install.cmake
 
 # Restore default .replit
 cat > .replit << 'EOF'
@@ -21,34 +13,34 @@ run = "./main"
 compile = "make"
 EOF
 
-# Restore Makefile
-cat > Makefile << 'EOF'
-CC = g++
-CFLAGS = -std=c++17 -Wall
-TARGET = main
-
-all: $(TARGET)
-
-$(TARGET): main.cpp
-	$(CC) $(CFLAGS) main.cpp -o $(TARGET)
-
-clean:
-	rm -f $(TARGET)
+# Restore default replit.nix
+cat > replit.nix << 'EOF'
+{ pkgs }: {
+  deps = [ pkgs.gcc ];
+}
 EOF
 
-# Restore main.cpp if missing
+# Restore default Makefile
+cat > Makefile << 'EOF'
+CC=g++
+CFLAGS=-std=c++17 -Wall
+all: main
+main: main.cpp
+	\$(CC) \$(CFLAGS) main.cpp -o main
+EOF
+
+# Restore default main.cpp if missing
 if [ ! -f main.cpp ]; then
 cat > main.cpp << 'EOF'
 #include <iostream>
-int main() {
-    std::cout << "Hello World!" << std::endl;
-    return 0;
+int main(){
+    std::cout<<"Hello World!"<<std::endl;
 }
 EOF
 fi
 
-make && ./main
+make
+./main
 
 echo "🎉 Cleanup complete!"
-echo "🧼 Replit C++ default environment fully restored!"
 

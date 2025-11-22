@@ -3,21 +3,15 @@
 echo "🚀 Starting GoogleTest Setup with AUTO-CLEAN..."
 
 ##############################################################
-# 0. AUTO-CLEAN (remove conflicting old files)
+# 0. AUTO-CLEAN (remove old files)
 ##############################################################
 
 echo "🧹 Cleaning old conflicting files..."
 
-# Remove default Replit C++ files
-rm -f main.cpp main Makefile
-
-# Remove old CMake leftovers
+rm -f main main.cpp Makefile
 rm -rf build CMakeFiles CMakeCache.txt cmake_install.cmake
-
-# Remove old executables
-find . -name "main_app" -delete
-find . -name "main_appe" -delete
-find . -name "test_runner" -delete
+find . -name "main_app*" -delete
+find . -name "test_runner*" -delete
 
 echo "✨ Auto-clean complete."
 
@@ -35,7 +29,6 @@ mkdir -p tests
 echo "📝 Writing src/add.h"
 cat > src/add.h << 'EOF'
 #pragma once
-
 int add(int a, int b);
 EOF
 
@@ -89,7 +82,7 @@ int main(int argc, char **argv) {
 EOF
 
 ##############################################################
-# 6. Create CMakeLists.txt (uses add_lib)
+# 6. Create CMakeLists.txt
 ##############################################################
 
 echo "🛠 Writing CMakeLists.txt"
@@ -103,15 +96,14 @@ set(CMAKE_CXX_STANDARD 17)
 add_library(add_lib src/add.cpp)
 
 # Main application
-add_executable(main_app
-    src/main.cpp
-)
+add_executable(main_app src/main.cpp)
 target_link_libraries(main_app add_lib)
 
 # GoogleTest runner
-add_executable(test_runner
-    tests/test.cpp
-)
+add_executable(test_runner tests/test.cpp)
+
+# Include src so add.h is found
+target_include_directories(test_runner PRIVATE src)
 
 find_package(GTest REQUIRED)
 
@@ -140,7 +132,7 @@ cat > replit.nix << 'EOF'
 EOF
 
 ##############################################################
-# 8. Create .clangd (fix IntelliSense)
+# 8. Create .clangd
 ##############################################################
 
 echo "🧠 Writing .clangd"
@@ -152,7 +144,7 @@ CompileFlags:
 EOF
 
 ##############################################################
-# 9. Create .replit (Run button + commands)
+# 9. Create .replit
 ##############################################################
 
 echo "⚙ Writing .replit"
@@ -203,7 +195,7 @@ make test_runner
 EOF
 
 ##############################################################
-# 10. Initial CMake build
+# 10. Build
 ##############################################################
 
 echo "🔨 Running initial build..."

@@ -12,14 +12,14 @@ rm -rf build CMakeFiles CMakeCache.txt cmake_install.cmake
 rm -rf src tests
 
 ##############################
-# CREATE DIRECTORIES
+# 1. CREATE DIRECTORIES
 ##############################
 
 mkdir -p src
 mkdir -p tests
 
 ##############################
-# src/add.h
+# 2. src/add.h
 ##############################
 
 echo "📝 Writing src/add.h"
@@ -29,7 +29,7 @@ int add(int a, int b);
 EOF
 
 ##############################
-# src/add.cpp
+# 3. src/add.cpp
 ##############################
 
 echo "📝 Writing src/add.cpp"
@@ -42,7 +42,7 @@ int add(int a, int b) {
 EOF
 
 ##############################
-# src/main.cpp
+# 4. src/main.cpp
 ##############################
 
 echo "📝 Writing src/main.cpp"
@@ -57,7 +57,7 @@ int main() {
 EOF
 
 ##############################
-# tests/test.cpp
+# 5. tests/test.cpp
 ##############################
 
 echo "📝 Writing tests/test.cpp"
@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
 EOF
 
 ##############################
-# CMakeLists.txt
+# 6. CMakeLists.txt
 ##############################
 
 echo "🛠 Writing CMakeLists.txt"
@@ -107,7 +107,7 @@ target_link_libraries(test_runner
 EOF
 
 ##############################
-# replit.nix
+# 7. replit.nix
 ##############################
 
 echo "🛠 Writing replit.nix"
@@ -122,7 +122,7 @@ cat > replit.nix << 'EOF'
 EOF
 
 ##############################
-# run_main.sh
+# 8. run_main.sh
 ##############################
 
 echo "🟩 Creating run_main.sh"
@@ -146,7 +146,7 @@ EOF
 chmod +x run_main.sh
 
 ##############################
-# run_tests.sh
+# 9. run_tests.sh
 ##############################
 
 echo "🧪 Creating run_tests.sh"
@@ -170,7 +170,7 @@ EOF
 chmod +x run_tests.sh
 
 ##############################
-# run_select.sh (Fancy Menu)
+# 10. run_select.sh (Fancy Menu)
 ##############################
 
 echo "🧭 Creating run_select.sh (menu runner)"
@@ -209,7 +209,7 @@ EOF
 chmod +x run_select.sh
 
 ##############################
-# .replit
+# 11. .replit
 ##############################
 
 echo "⚙ Writing .replit"
@@ -222,7 +222,7 @@ run_tests = "bash -ic './run_tests.sh'"
 EOF
 
 ##############################
-# INITIAL BUILD
+# 12. INITIAL BUILD
 ##############################
 
 echo "🔨 Running initial build..."

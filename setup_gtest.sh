@@ -1,45 +1,51 @@
 #!/bin/bash
 
-echo "🚀 Starting GoogleTest Setup (Optimized Clean Version)..."
+echo "🚀 Starting GoogleTest Setup (Menu-Based Runner)..."
 
-#######################################
-# 0. CLEAN ENVIRONMENT (ONLY NECESSARY)
-#######################################
+##############################
+# 0. CLEAN OLD FILES
+##############################
 
-rm -rf build src tests CMakeFiles CMakeCache.txt cmake_install.cmake
-rm -f main main_app test_runner libadd_lib.a
-rm -f run_active.sh shell.nix repl-runner.sh replit.nix.backup
-rm -f Makefile setup.sh
+echo "🧹 Cleaning environment..."
+rm -f main main.cpp Makefile run_main.sh run_tests.sh run_select.sh
+rm -rf build CMakeFiles CMakeCache.txt cmake_install.cmake
+rm -rf src tests
 
-#######################################
-# 1. CREATE PROJECT STRUCTURE
-#######################################
+##############################
+# CREATE DIRECTORIES
+##############################
 
 mkdir -p src
 mkdir -p tests
 
-#######################################
-# 2. src/add.h
-#######################################
+##############################
+# src/add.h
+##############################
 
+echo "📝 Writing src/add.h"
 cat > src/add.h << 'EOF'
 #pragma once
 int add(int a, int b);
 EOF
 
-#######################################
-# 3. src/add.cpp
-#######################################
+##############################
+# src/add.cpp
+##############################
 
+echo "📝 Writing src/add.cpp"
 cat > src/add.cpp << 'EOF'
 #include "add.h"
-int add(int a, int b) { return a + b; }
+
+int add(int a, int b) {
+    return a + b;
+}
 EOF
 
-#######################################
-# 4. src/main.cpp
-#######################################
+##############################
+# src/main.cpp
+##############################
 
+echo "📝 Writing src/main.cpp"
 cat > src/main.cpp << 'EOF'
 #include "add.h"
 #include <iostream>
@@ -50,28 +56,32 @@ int main() {
 }
 EOF
 
-#######################################
-# 5. tests/test.cpp
-#######################################
+##############################
+# tests/test.cpp
+##############################
 
+echo "📝 Writing tests/test.cpp"
 cat > tests/test.cpp << 'EOF'
 #include <gtest/gtest.h>
 #include "add.h"
 
 TEST(AdditionTest, Basic) {
-    EXPECT_EQ(add(2,3), 5);
-    EXPECT_EQ(add(-1,1), 0);
+    EXPECT_EQ(add(2, 3), 5);
+    EXPECT_EQ(add(-1, 1), 0);
+    EXPECT_EQ(add(0, 0), 0);
 }
-int main(int c, char** v) {
-    testing::InitGoogleTest(&c, v);
+
+int main(int argc, char **argv) {
+    testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
 EOF
 
-#######################################
-# 6. CMakeLists.txt
-#######################################
+##############################
+# CMakeLists.txt
+##############################
 
+echo "🛠 Writing CMakeLists.txt"
 cat > CMakeLists.txt << 'EOF'
 cmake_minimum_required(VERSION 3.10)
 project(ReplitGTestProject)
@@ -96,10 +106,11 @@ target_link_libraries(test_runner
 )
 EOF
 
-#######################################
-# 7. replit.nix
-#######################################
+##############################
+# replit.nix
+##############################
 
+echo "🛠 Writing replit.nix"
 cat > replit.nix << 'EOF'
 { pkgs }: {
   deps = [
@@ -110,44 +121,59 @@ cat > replit.nix << 'EOF'
 }
 EOF
 
-#######################################
-# 8. run_main.sh
-#######################################
+##############################
+# run_main.sh
+##############################
 
+echo "🟩 Creating run_main.sh"
 cat > run_main.sh << 'EOF'
 #!/bin/bash
+
 echo "▶ Running main_app..."
+
 if [ ! -f build/Makefile ]; then
-  rm -rf build && mkdir build && cd build && cmake ..
+  rm -rf build
+  mkdir build
+  cd build
+  cmake ..
 else
   cd build
 fi
+
 make main_app
 ./main_app
 EOF
 chmod +x run_main.sh
 
-#######################################
-# 9. run_tests.sh
-#######################################
+##############################
+# run_tests.sh
+##############################
 
+echo "🧪 Creating run_tests.sh"
 cat > run_tests.sh << 'EOF'
 #!/bin/bash
+
 echo "🧪 Running GoogleTests..."
+
 if [ ! -f build/Makefile ]; then
-  rm -rf build && mkdir build && cd build && cmake ..
+  rm -rf build
+  mkdir build
+  cd build
+  cmake ..
 else
   cd build
 fi
+
 make test_runner
 ./test_runner
 EOF
 chmod +x run_tests.sh
 
-#######################################
-# 10. run_select.sh (FANCY MENU)
-#######################################
+##############################
+# run_select.sh (Fancy Menu)
+##############################
 
+echo "🧭 Creating run_select.sh (menu runner)"
 cat > run_select.sh << 'EOF'
 #!/bin/bash
 
@@ -159,42 +185,54 @@ while true; do
   echo "2) 🧪 Run GoogleTests"
   echo "3) ❌ Exit"
   echo "========================================="
-  read -p "Enter choice (1/2/3): " c
+  read -p "Enter choice (1/2/3): " choice
 
-  case "$c" in
-    1) bash run_main.sh; break ;;
-    2) bash run_tests.sh; break ;;
-    3) echo '👋 Exiting runner.'; exit 0 ;;
-    *) echo "⚠ Invalid choice. Try again." ;;
+  case "$choice" in
+    1)
+      bash ./run_main.sh
+      break
+      ;;
+    2)
+      bash ./run_tests.sh
+      break
+      ;;
+    3)
+      echo "👋 Exiting runner."
+      exit 0
+      ;;
+    *)
+      echo "⚠ Invalid choice. Please enter 1, 2, or 3."
+      ;;
   esac
 done
 EOF
 chmod +x run_select.sh
 
-#######################################
-# 11. CLEAN .replit (NO GARBAGE)
-#######################################
+##############################
+# .replit
+##############################
 
+echo "⚙ Writing .replit"
 cat > .replit << 'EOF'
 run = "bash -ic './run_select.sh'"
 
 [commands]
 run_main = "bash -ic './run_main.sh'"
 run_tests = "bash -ic './run_tests.sh'"
-
-[packager]
-ignoredFiles = ["run_active.sh"]
 EOF
 
-#######################################
-# 12. INITIAL BUILD
-#######################################
+##############################
+# INITIAL BUILD
+##############################
 
-mkdir build && cd build && cmake .. && make
+echo "🔨 Running initial build..."
+rm -rf build
+mkdir build
+cd build
+cmake ..
+make
 
-echo "🎉 Clean GoogleTest setup complete!"
-echo "➡ Click RUN to use the menu"
-echo "➡ run_main for main_app"
-echo "➡ run_tests for GoogleTests"
+echo "🎉 GoogleTest setup complete!"
+echo "➡ Click RUN to see menu in TERMINAL"
+echo "➡ Choose 1 for main_app, 2 for tests"
 
-#Script Owner: Soumadip Dey

@@ -1,29 +1,26 @@
 #!/bin/bash
 
-echo "🚀 Starting GoogleTest Setup with Terminal Output + Smart Run Button"
+echo "🚀 Starting GoogleTest Setup (Dual Run Buttons Version)..."
 
-############################################
-# 0. CLEAN OLD FILES
-############################################
+##############################
+# CLEANUP OLD FILES
+##############################
 
-echo "🧹 Cleaning old files..."
-
-rm -f main main.cpp Makefile run_active.sh
+echo "🧹 Cleaning environment..."
+rm -f main main.cpp Makefile run_main.sh run_tests.sh
 rm -rf build CMakeFiles CMakeCache.txt cmake_install.cmake
 rm -rf src tests
 
-echo "✨ Base cleaned."
-
-############################################
-# 1. CREATE FOLDERS
-############################################
+##############################
+# CREATE DIRECTORIES
+##############################
 
 mkdir -p src
 mkdir -p tests
 
-############################################
-# 2. src/add.h
-############################################
+##############################
+# src/add.h
+##############################
 
 echo "📝 Writing src/add.h"
 cat > src/add.h << 'EOF'
@@ -31,9 +28,9 @@ cat > src/add.h << 'EOF'
 int add(int a, int b);
 EOF
 
-############################################
-# 3. src/add.cpp
-############################################
+##############################
+# src/add.cpp
+##############################
 
 echo "📝 Writing src/add.cpp"
 cat > src/add.cpp << 'EOF'
@@ -44,9 +41,9 @@ int add(int a, int b) {
 }
 EOF
 
-############################################
-# 4. src/main.cpp
-############################################
+##############################
+# src/main.cpp
+##############################
 
 echo "📝 Writing src/main.cpp"
 cat > src/main.cpp << 'EOF'
@@ -59,9 +56,9 @@ int main() {
 }
 EOF
 
-############################################
-# 5. tests/test.cpp
-############################################
+##############################
+# tests/test.cpp
+##############################
 
 echo "📝 Writing tests/test.cpp"
 cat > tests/test.cpp << 'EOF'
@@ -80,9 +77,9 @@ int main(int argc, char **argv) {
 }
 EOF
 
-############################################
-# 6. CMakeLists.txt
-############################################
+##############################
+# CMakeLists.txt
+##############################
 
 echo "🛠 Writing CMakeLists.txt"
 cat > CMakeLists.txt << 'EOF'
@@ -109,9 +106,9 @@ target_link_libraries(test_runner
 )
 EOF
 
-############################################
-# 7. replit.nix
-############################################
+##############################
+# replit.nix
+##############################
 
 echo "🛠 Writing replit.nix"
 cat > replit.nix << 'EOF'
@@ -120,97 +117,74 @@ cat > replit.nix << 'EOF'
     pkgs.gcc
     pkgs.cmake
     pkgs.gtest
-    pkgs.pkg-config
   ];
 }
 EOF
 
-############################################
-# 8. .clangd
-############################################
+##############################
+# Run button scripts
+##############################
 
-echo "🧠 Writing .clangd"
-cat > .clangd << 'EOF'
-CompileFlags:
-  Add:
-    - -I/usr/include
-    - -I/nix/store
-EOF
-
-############################################
-# 9. SMART .replit
-############################################
-
-echo "⚙ Writing .replit (Terminal Output Mode)"
-cat > .replit << 'EOF'
-run = "bash -ic './run_active.sh'"
-EOF
-
-############################################
-# 10. Create run_active.sh
-############################################
-
-echo "⚙ Creating run_active.sh"
-cat > run_active.sh << 'EOF'
+echo "🟩 Creating run_main.sh"
+cat > run_main.sh << 'EOF'
 #!/bin/bash
 
-ACTIVE=$(cat /mnt/data/.active_file 2>/dev/null || echo "")
+echo "▶ Running main_app..."
 
-echo "🟦 Active file: $ACTIVE"
-
-# Test file active
-if [[ "$ACTIVE" == *"tests/test.cpp"* ]]; then
-  echo "🧪 Running GoogleTests..."
-  if [ ! -f build/Makefile ]; then
-    rm -rf build && mkdir build && cd build && cmake ..
-  else
-    cd build
-  fi
-  make test_runner
-  ./test_runner
-  exit 0
-fi
-
-# Main file active
-if [[ "$ACTIVE" == *"src/main.cpp"* ]]; then
-  echo "▶ Running main_app..."
-  if [ ! -f build/Makefile ]; then
-    rm -rf build && mkdir build && cd build && cmake ..
-  else
-    cd build
-  fi
-  make main_app
-  ./main_app
-  exit 0
-fi
-
-# Default behavior
-echo "ℹ Defaulting to main_app..."
 if [ ! -f build/Makefile ]; then
   rm -rf build && mkdir build && cd build && cmake ..
 else
   cd build
 fi
+
 make main_app
 ./main_app
 EOF
+chmod +x run_main.sh
 
-chmod +x run_active.sh
+echo "🧪 Creating run_tests.sh"
+cat > run_tests.sh << 'EOF'
+#!/bin/bash
 
-############################################
-# 11. INITIAL BUILD
-############################################
+echo "🧪 Running GoogleTests..."
+
+if [ ! -f build/Makefile ]; then
+  rm -rf build && mkdir build && cd build && cmake ..
+else
+  cd build
+fi
+
+make test_runner
+./test_runner
+EOF
+chmod +x run_tests.sh
+
+##############################
+# .replit
+##############################
+
+echo "⚙ Writing .replit"
+cat > .replit << 'EOF'
+run = "bash -ic './run_main.sh'"
+
+[commands]
+run_main = "bash -ic './run_main.sh'"
+run_tests = "bash -ic './run_tests.sh'"
+EOF
+
+##############################
+# INITIAL BUILD
+##############################
 
 echo "🔨 Running initial build..."
-
 rm -rf build
 mkdir build
 cd build
 cmake ..
 make
 
-echo "🎉 GoogleTest installation complete!"
-echo "➡ Open test.cpp → Run → GoogleTests in TERMINAL"
-echo "➡ Open main.cpp → Run → main_app in TERMINAL"
-echo "➡ Full output now displays in Terminal"
+echo "🎉 GoogleTest setup complete!"
+echo "➡ RUN runs main_app"
+echo "➡ COMMAND: run_tests runs GoogleTests"
+echo "➡ Output visible in TERMINAL"
 

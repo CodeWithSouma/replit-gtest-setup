@@ -1,23 +1,15 @@
 #!/bin/bash
 
-echo "🧹 Cleaning + Restoring original Replit environment..."
+echo "🧹 Restoring default Replit C++ environment..."
 
 rm -rf build src tests
-rm -f CMakeLists.txt .clangd run_active.sh
-rm -f main_app test_runner libadd_lib.a
+rm -f CMakeLists.txt .clangd run_main.sh run_tests.sh
 rm -rf CMakeFiles CMakeCache.txt cmake_install.cmake
 
 # Restore default .replit
 cat > .replit << 'EOF'
 run = "./main"
 compile = "make"
-EOF
-
-# Restore default replit.nix
-cat > replit.nix << 'EOF'
-{ pkgs }: {
-  deps = [ pkgs.gcc ];
-}
 EOF
 
 # Restore default Makefile
@@ -29,11 +21,18 @@ main: main.cpp
 	\$(CC) \$(CFLAGS) main.cpp -o main
 EOF
 
-# Restore default main.cpp if missing
+# Restore default replit.nix
+cat > replit.nix << 'EOF'
+{ pkgs }: {
+  deps = [ pkgs.gcc ];
+}
+EOF
+
+# Restore main.cpp if missing
 if [ ! -f main.cpp ]; then
 cat > main.cpp << 'EOF'
 #include <iostream>
-int main(){
+int main() {
     std::cout<<"Hello World!"<<std::endl;
 }
 EOF

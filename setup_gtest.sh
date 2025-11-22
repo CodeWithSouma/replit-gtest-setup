@@ -1,20 +1,39 @@
 #!/bin/bash
 
-echo "🔧 Starting FULL GoogleTest Setup for Replit (CMake Mode)…"
+echo "🚀 Starting GoogleTest Setup with AUTO-CLEAN..."
 
-#########################################
-# 1. Ensure folders
-#########################################
+##############################################################
+# 0. AUTO-CLEAN (Fix stale builds, default files, conflicts)
+##############################################################
+
+echo "🧹 Cleaning old conflicting files..."
+
+# Remove default Replit C++ project files
+rm -f main.cpp main Makefile
+
+# Remove old cmake leftovers
+rm -rf build CMakeFiles CMakeCache.txt cmake_install.cmake
+
+# Remove old executables
+find . -name "main_app" -delete
+find . -name "main_appe" -delete
+find . -name "main_app*" -delete
+find . -name "test_runner" -delete
+
+echo "✨ Auto-clean complete."
+
+##############################################################
+# 1. Create structure
+##############################################################
 
 mkdir -p src
 mkdir -p tests
 
-#########################################
-# 2. Write tests/test.cpp
-#########################################
+##############################################################
+# 2. Create tests/test.cpp
+##############################################################
 
 echo "📝 Writing tests/test.cpp"
-
 cat > tests/test.cpp << 'EOF'
 #include <gtest/gtest.h>
 
@@ -30,14 +49,11 @@ int main(int argc, char **argv) {
 }
 EOF
 
-#########################################
-# 3. Create src/main.cpp ONLY IF MISSING
-#########################################
+##############################################################
+# 3. Create src/main.cpp
+##############################################################
 
-if [ ! -f src/main.cpp ]; then
-
-echo "📝 Creating src/main.cpp"
-
+echo "📝 Writing src/main.cpp"
 cat > src/main.cpp << 'EOF'
 int add(int a, int b) {
     return a + b;
@@ -50,31 +66,23 @@ int main() {
 }
 EOF
 
-else
-  echo "✔ src/main.cpp exists — keeping it"
-fi
-
-#########################################
-# 4. Full CMakeLists.txt (Two executables)
-#########################################
+##############################################################
+# 4. Create CMakeLists.txt
+##############################################################
 
 echo "🛠 Writing CMakeLists.txt"
-
 cat > CMakeLists.txt << 'EOF'
 cmake_minimum_required(VERSION 3.10)
 project(ReplitGTestProject)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(main_app
-    src/main.cpp
-)
+add_executable(main_app src/main.cpp)
 
-add_executable(test_runner
-    tests/test.cpp
-)
+add_executable(test_runner tests/test.cpp)
 
 find_package(GTest REQUIRED)
+
 target_link_libraries(test_runner
     GTest::gtest
     GTest::gtest_main
@@ -82,12 +90,11 @@ target_link_libraries(test_runner
 )
 EOF
 
-#########################################
-# 5. Write replit.nix
-#########################################
+##############################################################
+# 5. Create replit.nix
+##############################################################
 
 echo "🛠 Writing replit.nix"
-
 cat > replit.nix << 'EOF'
 { pkgs }: {
   deps = [
@@ -99,12 +106,11 @@ cat > replit.nix << 'EOF'
 }
 EOF
 
-#########################################
-# 6. Write .clangd
-#########################################
+##############################################################
+# 6. Create .clangd
+##############################################################
 
 echo "🧠 Writing .clangd"
-
 cat > .clangd << 'EOF'
 CompileFlags:
   Add:
@@ -112,12 +118,11 @@ CompileFlags:
     - -I/nix/store
 EOF
 
-#########################################
-# 7. Write .replit (PERFECTED HEREDOC)
-#########################################
+##############################################################
+# 7. Create .replit
+##############################################################
 
 echo "⚙ Writing .replit"
-
 cat > .replit << 'EOF'
 run = """
 if [ ! -f build/Makefile ]; then
@@ -164,11 +169,11 @@ make test_runner
 """
 EOF
 
-#########################################
-# 8. Initial CMake Run
-#########################################
+##############################################################
+# 8. Initial CMake Build
+##############################################################
 
-echo "🔨 Running initial build…"
+echo "🔨 Running initial build..."
 
 rm -rf build
 mkdir build
@@ -176,8 +181,8 @@ cd build
 cmake ..
 make
 
-echo "🎉 GoogleTest Installation Complete!"
-echo "➡ Run button runs main_app"
-echo "➡ run_tests runs GoogleTests"
-echo "➡ run_main runs main_app manually"
+echo "🎉 GoogleTest installation complete!"
+echo "➡ Run button executes main_app"
+echo "➡ run_tests runs your GoogleTests"
+echo "➡ run_main runs main_app"
 

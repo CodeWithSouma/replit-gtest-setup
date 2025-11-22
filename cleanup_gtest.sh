@@ -1,13 +1,44 @@
 #!/bin/bash
 
-echo "🧹 Starting cleanup — restoring original Replit C++ environment..."
+echo "🧹 Starting FULL cleanup — restoring original Replit C++ environment..."
 
-rm -rf build src tests
-rm -f CMakeLists.txt .clangd test_runner main_app main main-debug replit.nix
+##############################################################
+# 1. REMOVE ALL DIRECTORIES CREATED BY SETUP
+##############################################################
 
-#########################################
-# Restore default replit.nix
-#########################################
+echo "🗑 Removing CMake and GoogleTest directories..."
+
+rm -rf build
+rm -rf src
+rm -rf tests
+
+##############################################################
+# 2. REMOVE GENERATED FILES
+##############################################################
+
+echo "🗑 Removing generated files..."
+rm -f CMakeLists.txt
+rm -f .clangd
+rm -f cmake_install.cmake
+rm -f test_runner
+rm -f main_app
+rm -f main_app*
+rm -f test_runner*
+rm -f CMakeCache.txt
+rm -f *.o
+
+##############################################################
+# 3. REMOVE ANY STALE CMAKE SYSTEM FILES
+##############################################################
+
+echo "🗑 Removing CMake internal build metadata..."
+rm -rf CMakeFiles
+
+##############################################################
+# 4. RESTORE DEFAULT replit.nix
+##############################################################
+
+echo "🔄 Restoring default replit.nix..."
 
 cat > replit.nix << 'EOF'
 { pkgs }: {
@@ -17,18 +48,22 @@ cat > replit.nix << 'EOF'
 }
 EOF
 
-#########################################
-# Restore default .replit
-#########################################
+##############################################################
+# 5. RESTORE DEFAULT .replit
+##############################################################
+
+echo "🔄 Restoring default .replit..."
 
 cat > .replit << 'EOF'
 run = "./main"
 compile = "make"
 EOF
 
-#########################################
-# Restore default Makefile
-#########################################
+##############################################################
+# 6. RESTORE DEFAULT Makefile
+##############################################################
+
+echo "🛠 Restoring default Makefile..."
 
 cat > Makefile << 'EOF'
 CC = g++
@@ -44,26 +79,37 @@ clean:
 	rm -f $(TARGET)
 EOF
 
-#########################################
-# Restore main.cpp if missing
-#########################################
+##############################################################
+# 7. RESTORE main.cpp IF MISSING
+##############################################################
 
 if [ ! -f main.cpp ]; then
+echo "📝 Restoring default main.cpp"
 cat > main.cpp << 'EOF'
 #include <iostream>
 int main() {
-    std::cout << "Hello from restored Replit C++ environment!" << std::endl;
+    std::cout << "Hello World!" << std::endl;
     return 0;
 }
 EOF
+else
+  echo "✔ Keeping existing main.cpp"
 fi
 
-#########################################
-# Auto-build and run
-#########################################
+##############################################################
+# 8. REBUILD & RUN DEFAULT PROJECT
+##############################################################
 
+echo "🔨 Building default project using Makefile..."
 make
+
+echo "🏃 Running default program..."
 ./main
 
-echo "🎉 Cleanup complete and running!"
+##############################################################
+# 9. DONE!
+##############################################################
+
+echo "🎉 Cleanup complete!"
+echo "🧼 Replit C++ environment fully restored!"
 

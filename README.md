@@ -31,7 +31,7 @@ This project fixes everything in **one command** 😎
 ### Just copy & paste into **Replit Shell**:
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/CodeWithSouma/replit-gtest-setup/main/setup_gtest.sh)
+bash <(curl -s https://raw.githubusercontent.com/CodeWithSouma/replit-gtest-setup/main/setup_gtest.sh)```
 
 ---
 
@@ -42,5 +42,5 @@ If you want to **remove everything installed by the GoogleTest auto-installer** 
 ### **Cleanup Command:**
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/CodeWithSouma/replit-gtest-setup/main/cleanup_gtest.sh)
+bash <(curl -s https://raw.githubusercontent.com/CodeWithSouma/replit-gtest-setup/main/cleanup_gtest.sh)```
 

@@ -16,14 +16,14 @@ find . -name "test_runner*" -delete
 echo "✨ Auto-clean complete."
 
 ##############################################################
-# 1. Create folder structure
+# 1. Create folders
 ##############################################################
 
 mkdir -p src
 mkdir -p tests
 
 ##############################################################
-# 2. Create src/add.h
+# 2. src/add.h
 ##############################################################
 
 echo "📝 Writing src/add.h"
@@ -33,7 +33,7 @@ int add(int a, int b);
 EOF
 
 ##############################################################
-# 3. Create src/add.cpp
+# 3. src/add.cpp
 ##############################################################
 
 echo "📝 Writing src/add.cpp"
@@ -46,7 +46,7 @@ int add(int a, int b) {
 EOF
 
 ##############################################################
-# 4. Create src/main.cpp
+# 4. src/main.cpp
 ##############################################################
 
 echo "📝 Writing src/main.cpp"
@@ -61,7 +61,7 @@ int main() {
 EOF
 
 ##############################################################
-# 5. Create tests/test.cpp
+# 5. tests/test.cpp
 ##############################################################
 
 echo "📝 Writing tests/test.cpp"
@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
 EOF
 
 ##############################################################
-# 6. Create CMakeLists.txt
+# 6. CMakeLists.txt
 ##############################################################
 
 echo "🛠 Writing CMakeLists.txt"
@@ -92,17 +92,12 @@ project(ReplitGTestProject)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# Shared library for add()
 add_library(add_lib src/add.cpp)
 
-# Main application
 add_executable(main_app src/main.cpp)
 target_link_libraries(main_app add_lib)
 
-# GoogleTest runner
 add_executable(test_runner tests/test.cpp)
-
-# Include src so add.h is found
 target_include_directories(test_runner PRIVATE src)
 
 find_package(GTest REQUIRED)
@@ -116,7 +111,7 @@ target_link_libraries(test_runner
 EOF
 
 ##############################################################
-# 7. Create replit.nix
+# 7. replit.nix
 ##############################################################
 
 echo "🛠 Writing replit.nix"
@@ -132,7 +127,7 @@ cat > replit.nix << 'EOF'
 EOF
 
 ##############################################################
-# 8. Create .clangd
+# 8. .clangd
 ##############################################################
 
 echo "🧠 Writing .clangd"
@@ -144,7 +139,7 @@ CompileFlags:
 EOF
 
 ##############################################################
-# 9. Create SMART .replit
+# 9. SMART .replit (FIXED REPL_ACTIVE_FILE)
 ##############################################################
 
 echo "⚙ Writing smart .replit"
@@ -152,10 +147,10 @@ cat > .replit << 'EOF'
 run = """
 set -e
 
-ACTIVE="$REPLIT_ACTIVE_FILE"
+ACTIVE="$REPL_ACTIVE_FILE"
 echo "🟦 Active file: $ACTIVE"
 
-# If test file active → run tests
+# Run tests if test.cpp is active
 if [[ "$ACTIVE" == *"tests/test.cpp"* ]]; then
   echo "🧪 Running GoogleTests..."
   if [ ! -f build/Makefile ]; then
@@ -169,7 +164,7 @@ if [[ "$ACTIVE" == *"tests/test.cpp"* ]]; then
   exit 0
 fi
 
-# If main active → run main_app
+# Run main_app if main file active
 if [[ "$ACTIVE" == *"src/main.cpp"* ]]; then
   echo "▶ Running main_app..."
   if [ ! -f build/Makefile ]; then
@@ -195,7 +190,7 @@ make main_app
 EOF
 
 ##############################################################
-# 10. Build everything
+# 10. Build
 ##############################################################
 
 echo "🔨 Running initial build..."
@@ -207,7 +202,7 @@ cmake ..
 make
 
 echo "🎉 GoogleTest installation complete!"
-echo "➡ Smart Run button enabled!"
-echo "➡ Opening main.cpp runs main_app"
-echo "➡ Opening test.cpp runs GoogleTests"
+echo "➡ Smart Run Button ENABLED"
+echo "➡ Open test.cpp → Run → GoogleTests"
+echo "➡ Open main.cpp → Run → main_app"
 

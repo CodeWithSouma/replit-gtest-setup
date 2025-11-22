@@ -113,7 +113,7 @@ CompileFlags:
 EOF
 
 #########################################
-# 7. Write .replit (HEREDOC FIXED)
+# 7. Write .replit (PERFECTED HEREDOC)
 #########################################
 
 echo "⚙ Writing .replit"

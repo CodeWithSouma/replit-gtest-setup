@@ -1,25 +1,25 @@
 #!/bin/bash
 
-echo "🚀 Starting GoogleTest Setup (Dual Run Buttons Version)..."
+echo "🚀 Starting GoogleTest Setup (Menu-Based Runner)..."
 
 ##############################
-# CLEANUP OLD FILES
+# 0. CLEAN OLD FILES
 ##############################
 
 echo "🧹 Cleaning environment..."
-rm -f main main.cpp Makefile run_main.sh run_tests.sh
+rm -f main main.cpp Makefile run_main.sh run_tests.sh run_select.sh
 rm -rf build CMakeFiles CMakeCache.txt cmake_install.cmake
 rm -rf src tests
 
 ##############################
-# CREATE DIRECTORIES
+# 1. CREATE DIRECTORIES
 ##############################
 
 mkdir -p src
 mkdir -p tests
 
 ##############################
-# src/add.h
+# 2. src/add.h
 ##############################
 
 echo "📝 Writing src/add.h"
@@ -29,7 +29,7 @@ int add(int a, int b);
 EOF
 
 ##############################
-# src/add.cpp
+# 3. src/add.cpp
 ##############################
 
 echo "📝 Writing src/add.cpp"
@@ -42,7 +42,7 @@ int add(int a, int b) {
 EOF
 
 ##############################
-# src/main.cpp
+# 4. src/main.cpp
 ##############################
 
 echo "📝 Writing src/main.cpp"
@@ -57,7 +57,7 @@ int main() {
 EOF
 
 ##############################
-# tests/test.cpp
+# 5. tests/test.cpp
 ##############################
 
 echo "📝 Writing tests/test.cpp"
@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
 EOF
 
 ##############################
-# CMakeLists.txt
+# 6. CMakeLists.txt
 ##############################
 
 echo "🛠 Writing CMakeLists.txt"
@@ -107,7 +107,7 @@ target_link_libraries(test_runner
 EOF
 
 ##############################
-# replit.nix
+# 7. replit.nix
 ##############################
 
 echo "🛠 Writing replit.nix"
@@ -122,7 +122,7 @@ cat > replit.nix << 'EOF'
 EOF
 
 ##############################
-# Run button scripts
+# 8. run_main.sh
 ##############################
 
 echo "🟩 Creating run_main.sh"
@@ -132,7 +132,10 @@ cat > run_main.sh << 'EOF'
 echo "▶ Running main_app..."
 
 if [ ! -f build/Makefile ]; then
-  rm -rf build && mkdir build && cd build && cmake ..
+  rm -rf build
+  mkdir build
+  cd build
+  cmake ..
 else
   cd build
 fi
@@ -142,6 +145,10 @@ make main_app
 EOF
 chmod +x run_main.sh
 
+##############################
+# 9. run_tests.sh
+##############################
+
 echo "🧪 Creating run_tests.sh"
 cat > run_tests.sh << 'EOF'
 #!/bin/bash
@@ -149,7 +156,10 @@ cat > run_tests.sh << 'EOF'
 echo "🧪 Running GoogleTests..."
 
 if [ ! -f build/Makefile ]; then
-  rm -rf build && mkdir build && cd build && cmake ..
+  rm -rf build
+  mkdir build
+  cd build
+  cmake ..
 else
   cd build
 fi
@@ -160,12 +170,51 @@ EOF
 chmod +x run_tests.sh
 
 ##############################
-# .replit
+# 10. run_select.sh (Fancy Menu)
+##############################
+
+echo "🧭 Creating run_select.sh (menu runner)"
+cat > run_select.sh << 'EOF'
+#!/bin/bash
+
+while true; do
+  echo "========================================="
+  echo "🔥 Replit GTest Runner — Choose an action"
+  echo "========================================="
+  echo "1) ▶ Run main_app"
+  echo "2) 🧪 Run GoogleTests"
+  echo "3) ❌ Exit"
+  echo "========================================="
+  read -p "Enter choice (1/2/3): " choice
+
+  case "$choice" in
+    1)
+      bash ./run_main.sh
+      break
+      ;;
+    2)
+      bash ./run_tests.sh
+      break
+      ;;
+    3)
+      echo "👋 Exiting runner."
+      exit 0
+      ;;
+    *)
+      echo "⚠ Invalid choice. Please enter 1, 2, or 3."
+      ;;
+  esac
+done
+EOF
+chmod +x run_select.sh
+
+##############################
+# 11. .replit
 ##############################
 
 echo "⚙ Writing .replit"
 cat > .replit << 'EOF'
-run = "bash -ic './run_main.sh'"
+run = "bash -ic './run_select.sh'"
 
 [commands]
 run_main = "bash -ic './run_main.sh'"
@@ -173,7 +222,7 @@ run_tests = "bash -ic './run_tests.sh'"
 EOF
 
 ##############################
-# INITIAL BUILD
+# 12. INITIAL BUILD
 ##############################
 
 echo "🔨 Running initial build..."
@@ -184,7 +233,6 @@ cmake ..
 make
 
 echo "🎉 GoogleTest setup complete!"
-echo "➡ RUN runs main_app"
-echo "➡ COMMAND: run_tests runs GoogleTests"
-echo "➡ Output visible in TERMINAL"
+echo "➡ Click RUN to see menu in TERMINAL"
+echo "➡ Choose 1 for main_app, 2 for tests"
 
